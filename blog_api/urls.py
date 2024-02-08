@@ -12,9 +12,9 @@ router = DefaultRouter()
 router.register('stream', StreamViewSet, basename='streamplatform')
 urlpatterns = router.urls
 urlpatterns = [
-    path('stream/review/<int:id>', Reviewdetail.as_view(), name='Review-detail'),
-    path('stream/<int:pk>/review-create', ReviewCreate.as_view(), name='Review-create'),
-    path('stream/<int:pk>/review', ReviewList.as_view(), name='Review-list'),
+    path('stream/review/<int:id>/', Reviewdetail.as_view(), name='Review-detail'),
+    path('stream/<int:pk>/review-create/', ReviewCreate.as_view(), name='Review-create'),
+    path('stream/<int:pk>/review/', ReviewList.as_view(), name='Review-list'),
     # path('review/', ReviewList.as_view(), name='ReviewList'),
     # path('review/<int:id>/', Reviewdetail.as_view(), name='Review-detail'),
 

@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
+from blog_api.permissions import isAdminOrreadonly   
 from django.contrib.auth.models import User
 
 
@@ -41,14 +42,24 @@ class ReviewCreate(generics.CreateAPIView):
         return Review.objects.all()
 
     def perform_create(self, serializer):
+
         pk=self.kwargs.get('pk')
         watchlist=Watchlist.objects.get(pk=pk)
-
         review_user=self.request.user
-        review_queryset=Review.objects.filter(watchlist=watchlist,review_user=review_user)    # first watchlist models ko 
+        review_queryset=Review.objects.filter(watchlist=watchlist,review_user=review_user) 
+           # first watchlist models ko 
         if review_queryset.exists():
             raise ValidationError('This User Has Already Reviewed ONCE!') 
         
+        if watchlist.total_reviews==0:
+            watchlist.avg_rating=serializer.validated_data['rating']
+        else:
+            watchlist.avg_rating=(watchlist.avg_rating+serializer.validated_data['rating'])/2
+
+        watchlist.total_reviews=watchlist.total_reviews+1
+            
+        watchlist.save()
+
         
         serializer.save(watchlist=watchlist,review_user=review_user)
 
@@ -57,10 +68,12 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    # permission_classes=[isAdminOrreadonly]
     permission_classes=[IsAuthenticated]
 
     def get_queryset(self):
         pk=self.kwargs['pk']
+        print("pk:2222222222222", pk)
         return Review.objects.filter(watchlist=pk)    #models ko ewatchlist
 # class ReviewList(mixins.ListModelMixin,
 #                   mixins.CreateModelMixin,
