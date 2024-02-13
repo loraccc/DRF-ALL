@@ -20,7 +20,8 @@ class Reviewdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     lookup_field = 'id'    #lookup id
-    permission_classes=[IsAuthenticatedOrReadOnly]
+    # permission_classes=[IsAuthenticatedOrReadOnly]
+    # permission_classes=[IsAuthenticated]
 
 # class Reviewdetail(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 #     serializer_class = ReviewSerializer
@@ -45,7 +46,7 @@ class ReviewCreate(generics.CreateAPIView):
 
         pk=self.kwargs.get('pk')
         watchlist=Watchlist.objects.get(pk=pk)
-        review_user=self.request.user
+        review_user=self.request.user    #Authenticated User
         review_queryset=Review.objects.filter(watchlist=watchlist,review_user=review_user) 
            # first watchlist models ko 
         if review_queryset.exists():
@@ -68,13 +69,13 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes=[isAdminOrreadonly]
-    # permission_classes=[IsAuthenticated]
+    # permission_classes=[isAdminOrreadonly]
+    permission_classes=[IsAuthenticated]
 
     def get_queryset(self):
         pk=self.kwargs['pk']
-        print("pk:2222222222222", pk)
-        return Review.objects.filter(watchlist=pk)    #models ko ewatchlist
+        print("pk:2222222222222", Review.objects.filter(id=pk))
+        return Review.objects.filter(id=pk)    #models ko ewatchlist
 # class ReviewList(mixins.ListModelMixin,
 #                   mixins.CreateModelMixin,
 #                   generics.GenericAPIView):
