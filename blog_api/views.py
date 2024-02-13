@@ -1,18 +1,21 @@
 from django.shortcuts import render,redirect
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+
 from rest_framework import generics,serializers
-from blog.models import Post,Watchlist,StreamPlatform,Review
-from .serializers import WatchlistSerializer,StreamPlatformSerializer,ReviewSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
-from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
+from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
+
+from .serializers import WatchlistSerializer,StreamPlatformSerializer,ReviewSerializer
+from blog.models import Post,Watchlist,StreamPlatform,Review
 from blog_api.permissions import isAdminOrreadonly   
-from django.contrib.auth.models import User
 
 
 
@@ -20,6 +23,7 @@ class Reviewdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     lookup_field = 'id'    #lookup id
+    throttle_classes=[UserRateThrottle,AnonRateThrottle]
     # permission_classes=[IsAuthenticatedOrReadOnly]
     # permission_classes=[IsAuthenticated]
 
@@ -39,6 +43,7 @@ class Reviewdetail(generics.RetrieveUpdateDestroyAPIView):
 class ReviewCreate(generics.CreateAPIView):
     serializer_class=ReviewSerializer
     permission_classes=[IsAuthenticated]
+    throttle_classes=[UserRateThrottle,AnonRateThrottle]
     def get_queryset(self):
         return Review.objects.all()
 
