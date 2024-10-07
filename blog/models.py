@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.core.validators import  MaxValueValidator,MinValueValidator
-# Create your models here.
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -20,7 +20,6 @@ class Post(models.Model):
     options=(
     ('draft','Draft'),
     ('published','Published'),
-
 )
 
     category= models.ForeignKey(Category,on_delete=models.PROTECT,default=1)
@@ -51,6 +50,7 @@ class StreamPlatform(models.Model):
     
 class Watchlist(models.Model):
     title=models.CharField(max_length=100)
+    # image=models.FileField(max_length=100)
     storyline=models.CharField(max_length=100)
     stars=models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     platform= models.ForeignKey(StreamPlatform,on_delete=models.CASCADE,related_name='watchlist')

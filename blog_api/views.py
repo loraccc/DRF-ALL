@@ -13,7 +13,10 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
 
-from .serializers import WatchlistSerializer,StreamPlatformSerializer,ReviewSerializer
+from .serializers import (WatchlistSerializer,
+                          StreamPlatformSerializer,
+                          ReviewSerializer)
+
 from blog.models import Post,Watchlist,StreamPlatform,Review
 from blog_api.permissions import isAdminOrreadonly   
 
@@ -23,7 +26,7 @@ class Reviewdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     lookup_field = 'id'    #lookup id
-    throttle_classes=[UserRateThrottle,AnonRateThrottle]
+    # throttle_classes=[UserRateThrottle,AnonRateThrottle]
     # permission_classes=[IsAuthenticatedOrReadOnly]
     # permission_classes=[IsAuthenticated]
 
@@ -54,10 +57,10 @@ class ReviewCreate(generics.CreateAPIView):
         review_user=self.request.user    #Authenticated User
         review_queryset=Review.objects.filter(watchlist=watchlist,review_user=review_user) 
            # first watchlist models ko 
-        if review_queryset.exists():
+        if  review_queryset.exists():
             raise ValidationError('This User Has Already Reviewed ONCE!') 
         
-        if watchlist.total_reviews==0:
+        if  watchlist.total_reviews==0:
             watchlist.avg_rating=serializer.validated_data['rating']
         else:
             watchlist.avg_rating=(watchlist.avg_rating+serializer.validated_data['rating'])/2
@@ -66,7 +69,6 @@ class ReviewCreate(generics.CreateAPIView):
             
         watchlist.save()
 
-        
         serializer.save(watchlist=watchlist,review_user=review_user)
 
 
@@ -112,7 +114,7 @@ class StreamViewSet(viewsets.ModelViewSet):
 #         return Response(serializer.data)
 
 
-class StreamPlatformAV(APIView):
+# class StreamPlatformAV(APIView):
     
     def get(self, request, pk=None):
         if pk is not None:
@@ -201,3 +203,8 @@ class FiveStarWatchlistAPIView(APIView):
         watchlists_with_five_stars = Watchlist.objects.filter(stars=5).distinct()
         serializer = WatchlistSerializer(watchlists_with_five_stars, many=True)
         return Response(serializer.data)
+    
+
+def newestarrival(request):
+    newest_arrivals = Watchlist.objects.order_by('-created')  # Newest arrivals sorted by creation date
+    return render(request, 'blog/newestarrival.html', {'newest_arrivals': newest_arrivals})
